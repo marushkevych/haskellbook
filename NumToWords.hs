@@ -2,16 +2,10 @@ module NumToWords where
 
   main :: IO()
   main = do
-    putStr "0 "
-    print $ numToWords 0
-    putStr "123 "
-    print $ numToWords 123
-    putStr "1,000,002 "
-    print $ numToWords 1000002
-    putStr "204,005,019,000 "
-    print $ numToWords 204005019000
-    putStr "204,000,003,000 "
-    print $ numToWords 204000003000
+    putStr "Enter the number: "
+    n <- getLine
+    putStrLn (numToWords $ read n)
+    main
 
   numToWords :: Integer -> String
   numToWords 0 = "zero"
