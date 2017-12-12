@@ -3,23 +3,22 @@ module NumToWords where
   main :: IO()
   main = do
     putStr "0 "
-    putStrLn $ numToWords 0
+    print $ numToWords 0
     putStr "123 "
-    putStrLn $ numToWords 123
+    print $ numToWords 123
     putStr "1,000,002 "
-    putStrLn $ numToWords 1000002
+    print $ numToWords 1000002
     putStr "204,005,019,000 "
-    putStrLn $ numToWords 204005019000
+    print $ numToWords 204005019000
     putStr "204,000,003,000 "
-    putStrLn $ numToWords 204000003000
-
+    print $ numToWords 204000003000
 
   numToWords :: Integer -> String
   numToWords 0 = "zero"
   numToWords n =
     let tripples = reverse (toTripples n []) in
       -- foldl f z [x1, x2, ..., xn]
-      unwords $ foldl trippleToWords [] tripples
+      unwords $ filter (not . null) $ foldl trippleToWords [] tripples
 
   toTripples :: Integer -> [Integer] -> [Integer]
   toTripples n acc = 
@@ -48,23 +47,18 @@ module NumToWords where
   spellHundrets n = 
     let (hundrets, tens) = divMod n 100 in
       if hundrets == 0 
-        then spellTens tens
-        else 
-          if tens == 0
-            then spellOnes hundrets ++ " hundred"
-            else spellOnes hundrets ++ " hundred " ++ spellTens tens
+        then unwords $ spellTens tens
+        else unwords $ spellOnes hundrets : "hundred" : spellTens tens
 
-  spellTens :: Integer -> String
-  spellTens 0 = ""
+  spellTens :: Integer -> [String]
+  spellTens 0 = []
   spellTens n = 
-    if n < 9 then spellOnes n
+    if n < 9 then [spellOnes n]
     else
-      if n < 20 then spellTeens n
+      if n < 20 then [spellTeens n]
       else
         let (tens, ones) = divMod n 10 in
-          if ones == 0 
-            then spellTyes tens 
-            else spellTyes tens ++ " " ++ spellOnes ones
+            [spellTyes tens, spellOnes ones]
 
 
   spellOnes :: Integer -> String
