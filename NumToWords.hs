@@ -1,17 +1,31 @@
 module NumToWords where
 
-  type RegisterName = Maybe String
-
   type Words = [String]
 
-  data Register = Register Integer RegisterName deriving Show
+  data Register = Register Integer RegisterType deriving Show
 
-  -- main :: IO()
-  -- main = do
-  --   putStr "Enter the number: "
-  --   n <- getLine
-  --   putStrLn (numToString $ read n)
-  --   main
+  data RegisterType = Ones | Thousands | Millions | Billions | Trillions deriving (Enum, Bounded)
+  instance Show RegisterType where
+    show Ones = ""
+    show Thousands = "thousand"
+    show Millions = "million"
+    show Billions = "billion"
+    show Trillions = "trillion"
+
+  main :: IO()
+  main = do
+    putStr "Enter the number: "
+    n <- getLine
+    putStrLn (numToString $ validate $ read n)
+    main
+
+  validate :: Integer -> Integer
+  validate n =
+    if n > maxNumber then error "Number too large"
+    else n
+
+  maxNumber :: Integer
+  maxNumber = toInteger $ 1000 ^ (fromEnum (maxBound::RegisterType) + 1) - 1
 
   numToString :: Integer -> String
   numToString 0 = "Zero"
@@ -24,7 +38,7 @@ module NumToWords where
   toRegisters n acc = 
     let 
       (thousands, tripple) = divMod n 1000 
-      reg = Register tripple (registerName (length acc))
+      reg = Register tripple (toEnum (length acc)::RegisterType)
     in
       case thousands of
         0 -> reg : acc
@@ -32,9 +46,9 @@ module NumToWords where
 
   registerToWords :: Words -> Register -> Words
   registerToWords acc (Register 0 _) = acc
-  registerToWords acc (Register tripple Nothing) = trippleToWords tripple ++ acc
-  registerToWords acc (Register tripple (Just register)) = 
-    trippleToWords tripple ++ register : acc
+  registerToWords acc (Register tripple Ones) = trippleToWords tripple ++ acc
+  registerToWords acc (Register tripple registerType) = 
+    trippleToWords tripple ++ (show registerType) : acc
 
   trippleToWords :: Integer -> Words
   trippleToWords n = 
@@ -56,13 +70,6 @@ module NumToWords where
   onesToWords :: Integer -> Words
   onesToWords 0 = []
   onesToWords n = [spellOnes n]
-
-  registerName :: Int -> RegisterName
-  registerName 0 = Nothing
-  registerName 1 = Just "thousand"
-  registerName 2 = Just "million"
-  registerName 3 = Just "billion"
-  registerName _ = error "unsupported register - number is too large"
 
   spellOnes :: Integer -> String
   spellOnes 1 = "one"
