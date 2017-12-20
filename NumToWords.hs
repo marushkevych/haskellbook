@@ -23,12 +23,12 @@ module NumToWords where
   toRegisters :: Integer -> [Register] -> [Register]
   toRegisters n acc = 
     let 
-      (rem, tripple) = divMod n 1000 
+      (thousands, tripple) = divMod n 1000 
       reg = Register tripple (registerName (length acc))
     in
-      if rem == 0 
-        then reg : acc 
-        else toRegisters rem (reg : acc)
+      case thousands of
+        0 -> reg : acc
+        t -> toRegisters t (reg : acc)
 
   registerToWords :: Words -> Register -> Words
   registerToWords acc (Register 0 _) = acc
