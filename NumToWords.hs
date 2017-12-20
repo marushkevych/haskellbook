@@ -1,59 +1,66 @@
 module NumToWords where
 
-  main :: IO()
-  main = do
-    putStr "Enter the number: "
-    n <- getLine
-    putStrLn (numToWords $ read n)
-    main
+  type RegisterName = Maybe String
 
-  numToWords :: Integer -> String
-  numToWords 0 = "zero"
-  numToWords n =
-    let tripples = reverse (toTripples n []) in
+  type Words = [String]
+
+  data Register = Register Integer RegisterName deriving Show
+
+  -- main :: IO()
+  -- main = do
+  --   putStr "Enter the number: "
+  --   n <- getLine
+  --   putStrLn (numToString $ read n)
+  --   main
+
+  numToString :: Integer -> String
+  numToString 0 = ""
+  numToString n =
+    let tripples = reverse (toRegisters n []) in
       -- foldl f z [x1, x2, ..., xn]
-      unwords $ filter (not . null) $ foldl trippleToWords [] tripples
+      unwords $ foldl registerToWords [] tripples
 
-  toTripples :: Integer -> [Integer] -> [Integer]
-  toTripples n acc = 
-    let (rem, tripple) = divMod n 1000 in
-      if rem == 0 
-        then tripple : acc 
-        else toTripples rem (tripple : acc)
-
-  trippleToWords :: [String] -> Integer -> [String]
-  trippleToWords acc 0 = "" : acc
-  trippleToWords acc tripple = 
+  toRegisters :: Integer -> [Register] -> [Register]
+  toRegisters n acc = 
     let 
-      registerString = register (length acc)
-      tripleString = spellHundrets tripple
+      (rem, tripple) = divMod n 1000 
+      reg = Register tripple (registerName (length acc))
     in
-      (tripleString ++ registerString) : acc
+      if rem == 0 
+        then reg : acc 
+        else toRegisters rem (reg : acc)
 
-  register :: Int -> String
-  register 0 = ""
-  register 1 = " thousand"
-  register 2 = " million"
-  register 3 = " billion"
-  register _ = error "unsupported register - number is too large"
+  registerToWords :: Words -> Register -> Words
+  registerToWords acc (Register 0 _) = acc
+  registerToWords acc (Register tripple Nothing) = hundredsToWords tripple ++ acc
+  registerToWords acc (Register tripple (Just register)) = 
+    hundredsToWords tripple ++ register : acc
 
-  spellHundrets :: Integer -> String
-  spellHundrets n = 
+  hundredsToWords :: Integer -> Words
+  hundredsToWords n = 
     let (hundrets, tens) = divMod n 100 in
       if hundrets == 0 
-        then unwords $ spellTens tens
-        else unwords $ spellOnes hundrets : "hundred" : spellTens tens
+        then tensToWords tens
+        else spellOnes hundrets : "hundred" : tensToWords tens
 
-  spellTens :: Integer -> [String]
-  spellTens 0 = []
-  spellTens n = 
+  tensToWords :: Integer -> Words
+  tensToWords 0 = []
+  tensToWords n = 
     if n < 9 then [spellOnes n]
     else
       if n < 20 then [spellTeens n]
       else
         let (tens, ones) = divMod n 10 in
-            [spellTyes tens, spellOnes ones]
+          case ones of
+            0 -> [spellTyes tens]
+            _ -> [spellTyes tens, spellOnes ones]
 
+  registerName :: Int -> RegisterName
+  registerName 0 = Nothing
+  registerName 1 = Just "thousand"
+  registerName 2 = Just "million"
+  registerName 3 = Just "billion"
+  registerName _ = error "unsupported register - number is too large"
 
   spellOnes :: Integer -> String
   spellOnes 1 = "one"
@@ -65,6 +72,8 @@ module NumToWords where
   spellOnes 7 = "seven"
   spellOnes 8 = "eight"
   spellOnes 9 = "nine"
+  spellOnes n = "cant spell" ++ show n
+
 
   spellTeens :: Integer -> String
   spellTeens 10 = "ten"
