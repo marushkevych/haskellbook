@@ -16,9 +16,9 @@ module NumToWords where
   numToString :: Integer -> String
   numToString 0 = ""
   numToString n =
-    let tripples = reverse (toRegisters n []) in
+    let registers = reverse (toRegisters n []) in
       -- foldl f z [x1, x2, ..., xn]
-      unwords $ foldl registerToWords [] tripples
+      unwords $ foldl registerToWords [] registers
 
   toRegisters :: Integer -> [Register] -> [Register]
   toRegisters n acc = 
@@ -32,16 +32,14 @@ module NumToWords where
 
   registerToWords :: Words -> Register -> Words
   registerToWords acc (Register 0 _) = acc
-  registerToWords acc (Register tripple Nothing) = hundredsToWords tripple ++ acc
+  registerToWords acc (Register tripple Nothing) = trippleToWords tripple ++ acc
   registerToWords acc (Register tripple (Just register)) = 
-    hundredsToWords tripple ++ register : acc
+    trippleToWords tripple ++ register : acc
 
-  hundredsToWords :: Integer -> Words
-  hundredsToWords n = 
+  trippleToWords :: Integer -> Words
+  trippleToWords n = 
     let (hundrets, tens) = divMod n 100 in
-      if hundrets == 0 
-        then tensToWords tens
-        else spellOnes hundrets : "hundred" : tensToWords tens
+      hundretsToWords hundrets ++ tensToWords tens
 
   tensToWords :: Integer -> Words
   tensToWords 0 = []
@@ -54,6 +52,11 @@ module NumToWords where
           case ones of
             0 -> [spellTyes tens]
             _ -> [spellTyes tens, spellOnes ones]
+
+
+  hundretsToWords :: Integer -> Words
+  hundretsToWords 0 = []
+  hundretsToWords n = [spellOnes n, "hundred"]
 
   registerName :: Int -> RegisterName
   registerName 0 = Nothing
