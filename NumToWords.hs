@@ -14,7 +14,7 @@ module NumToWords where
   --   main
 
   numToString :: Integer -> String
-  numToString 0 = ""
+  numToString 0 = "Zero"
   numToString n =
     let registers = reverse (toRegisters n []) in
       -- foldl f z [x1, x2, ..., xn]
@@ -44,19 +44,18 @@ module NumToWords where
   tensToWords :: Integer -> Words
   tensToWords 0 = []
   tensToWords n = 
-    if n < 9 then [spellOnes n]
+    if n < 20 then [spellOnes n]
     else
-      if n < 20 then [spellTeens n]
-      else
-        let (tens, ones) = divMod n 10 in
-          case ones of
-            0 -> [spellTyes tens]
-            _ -> [spellTyes tens, spellOnes ones]
-
+      let (tens, ones) = divMod n 10 in
+        spellTyes tens : onesToWords ones
 
   hundretsToWords :: Integer -> Words
   hundretsToWords 0 = []
   hundretsToWords n = [spellOnes n, "hundred"]
+
+  onesToWords :: Integer -> Words
+  onesToWords 0 = []
+  onesToWords n = [spellOnes n]
 
   registerName :: Int -> RegisterName
   registerName 0 = Nothing
@@ -75,20 +74,16 @@ module NumToWords where
   spellOnes 7 = "seven"
   spellOnes 8 = "eight"
   spellOnes 9 = "nine"
-  spellOnes n = "cant spell" ++ show n
-
-
-  spellTeens :: Integer -> String
-  spellTeens 10 = "ten"
-  spellTeens 11 = "eleven"
-  spellTeens 12 = "twelve"
-  spellTeens 13 = "thirteen"
-  spellTeens 14 = "fourteen"
-  spellTeens 15 = "fifteen"
-  spellTeens 16 = "sixteen"
-  spellTeens 17 = "seventeen"
-  spellTeens 18 = "eighteen"
-  spellTeens 19 = "nineteen"
+  spellOnes 10 = "ten"
+  spellOnes 11 = "eleven"
+  spellOnes 12 = "twelve"
+  spellOnes 13 = "thirteen"
+  spellOnes 14 = "fourteen"
+  spellOnes 15 = "fifteen"
+  spellOnes 16 = "sixteen"
+  spellOnes 17 = "seventeen"
+  spellOnes 18 = "eighteen"
+  spellOnes 19 = "nineteen"
 
   spellTyes :: Integer -> String
   spellTyes 2 = "twenty"
