@@ -37,8 +37,8 @@ module NumToWords where
   numToString 0 = "Zero"
   numToString n =
     let registers = reverse (toRegisters n []) in
-      -- foldl f z [x1, x2, ..., xn]
-      unwords $ foldl registerToWords [] registers
+      -- foldl reducer accumulator [x1, x2, ..., xn]
+      unwords $ foldl reducer [] registers
 
   toRegisters :: Integer -> [Register] -> [Register]
   toRegisters n acc = 
@@ -50,10 +50,11 @@ module NumToWords where
         0 -> reg : acc
         t -> toRegisters t (reg : acc)
 
-  registerToWords :: Words -> Register -> Words
-  registerToWords acc (Register 0 _) = acc
-  registerToWords acc (Register tripple Ones) = trippleToWords tripple ++ acc
-  registerToWords acc (Register tripple registerType) = 
+  -- reduce Registers to Words
+  reducer :: Words -> Register -> Words
+  reducer acc (Register 0 _) = acc
+  reducer acc (Register tripple Ones) = trippleToWords tripple ++ acc
+  reducer acc (Register tripple registerType) = 
     trippleToWords tripple ++ (show registerType) : acc
 
   trippleToWords :: Integer -> Words
