@@ -1,4 +1,5 @@
 module NumToWords where
+  import Text.Read
 
   type Words = [String]
 
@@ -16,15 +17,18 @@ module NumToWords where
   main = do
     putStr "Enter the number: "
     n <- getLine
-    case convert $ read n of
+    case convert n of
       Left err -> putStrLn $ "Invalid input: " ++ err
       Right result -> putStrLn result
     main
 
-  convert :: Integer -> Either String String
-  convert n =
-    if n > maxNumber then Left "Number too large"
-    else Right (numToString n)
+  convert :: String -> Either String String
+  convert input =
+    case readMaybe input of
+      Nothing -> Left "not a number"
+      Just n ->
+        if n > maxNumber then Left "Number too large"
+        else Right (numToString n)
 
   maxNumber :: Integer
   maxNumber = 1000 ^ (fromEnum (maxBound::RegisterType) + 1) - 1
