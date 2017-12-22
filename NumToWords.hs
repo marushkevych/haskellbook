@@ -16,16 +16,18 @@ module NumToWords where
   main = do
     putStr "Enter the number: "
     n <- getLine
-    putStrLn (numToString $ validate $ read n)
+    case convert $ read n of
+      Left err -> putStrLn $ "Invalid input: " ++ err
+      Right result -> putStrLn result
     main
 
-  validate :: Integer -> Integer
-  validate n =
-    if n > maxNumber then error "Number too large"
-    else n
+  convert :: Integer -> Either String String
+  convert n =
+    if n > maxNumber then Left "Number too large"
+    else Right (numToString n)
 
   maxNumber :: Integer
-  maxNumber = toInteger $ 1000 ^ (fromEnum (maxBound::RegisterType) + 1) - 1
+  maxNumber = 1000 ^ (fromEnum (maxBound::RegisterType) + 1) - 1
 
   numToString :: Integer -> String
   numToString 0 = "Zero"
